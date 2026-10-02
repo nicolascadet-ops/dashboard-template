@@ -78,4 +78,4 @@ For a real dashboard, put it behind authentication (for example Cloudflare Acces
 
 NC Atelier designs and builds fast, accessible websites and web apps for businesses in the UK, US and Canada.
 
-**Contact:** _add your email / LinkedIn here_
+**Get in touch:** [ncatelier.com](https://ncatelier.com) · [LinkedIn](https://www.linkedin.com/in/cadetnicolas)

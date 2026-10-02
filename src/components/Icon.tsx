@@ -1,0 +1,32 @@
+// A small set of 20px line icons, drawn once at the same 1.6 stroke.
+const PATHS = {
+  chart: 'M3 17V9M8 17V4M13 17v-6M18 17V7M2 17.5h17',
+  receipt: 'M5 2.5h10v15l-2.5-1.5L10 17.5 7.5 16 5 17.5zM7.5 7h5M7.5 10.5h5',
+  users: 'M7.5 9a3 3 0 100-6 3 3 0 000 6zM2.5 17c0-3 2.2-5 5-5s5 2 5 5M13.5 3.2a3 3 0 010 5.6M15 12.3c1.6.6 2.5 2.4 2.5 4.7',
+  gear: 'M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM10 2v2.2M10 15.8V18M2 10h2.2M15.8 10H18M4.3 4.3l1.6 1.6M14.1 14.1l1.6 1.6M4.3 15.7l1.6-1.6M14.1 5.9l1.6-1.6',
+  menu: 'M3 5.5h14M3 10h14M3 14.5h14',
+  close: 'M4.5 4.5l11 11M15.5 4.5l-11 11',
+  sun: 'M10 13.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6L16 16M4 16l1.4-1.4M14.6 5.4L16 4',
+  moon: 'M16.5 12.5A7 7 0 017.5 3.5a7 7 0 109 9z',
+  search: 'M9 15a6 6 0 100-12 6 6 0 000 12zM13.5 13.5L17.5 17.5',
+  download: 'M10 3v9.5M6 9l4 4 4-4M3.5 16.5h13',
+  up: 'M10 15V5M5.5 9.5L10 5l4.5 4.5',
+  down: 'M10 5v10M5.5 10.5L10 15l4.5-4.5',
+  check: 'M4.5 10.5l3.5 3.5 7.5-8',
+  clock: 'M10 17.5a7.5 7.5 0 100-15 7.5 7.5 0 000 15zM10 6v4.5l3 2',
+  undo: 'M7 6.5L3.5 10 7 13.5M3.5 10h8a5 5 0 010 10',
+  alert: 'M10 3l8 14H2zM10 8.5v4M10 14.8v.2',
+  sort: 'M7 4v12M4 7l3-3 3 3M13 16V4M10 13l3 3 3-3',
+  left: 'M12.5 4.5L7 10l5.5 5.5',
+  right: 'M7.5 4.5L13 10l-5.5 5.5',
+} as const;
+
+export type IconName = keyof typeof PATHS;
+
+export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" aria-hidden="true" className="icon">
+      <path d={PATHS[name]} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

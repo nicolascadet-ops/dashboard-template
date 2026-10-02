@@ -1,69 +1,113 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
+import Link from 'next/link';
+import { useState } from 'react';
+import { RANGES, ORDERS, TOP_PRODUCTS, channelSplit, money, num, pct, rangeData, shortDate, type RangeId } from '@/lib/data';
+import RevenueChart from '@/components/RevenueChart';
+import ChannelChart from '@/components/ChannelChart';
+import Status from '@/components/Status';
+import { Icon } from '@/components/Icon';
+
+function Delta({ now, before, invert = false }: { now: number; before: number; invert?: boolean }) {
+  const d = (now - before) / before;
+  const good = invert ? d < 0 : d >= 0;
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <span className={`delta ${good ? 'up' : 'down'}`}>
+      <Icon name={d >= 0 ? 'up' : 'down'} size={14} />
+      {pct(Math.abs(d))}
+      <span className="sr-only">{d >= 0 ? 'increase' : 'decrease'} versus previous period</span>
+    </span>
+  );
+}
+
+export default function Overview() {
+  const [range, setRange] = useState<RangeId>('30d');
+  const { current: c, previous: p, series, bucket } = rangeData(range);
+  const channels = channelSplit(range);
+  const label = RANGES.find((r) => r.id === range)!.label.toLowerCase();
+  const [showTable, setShowTable] = useState(false);
+
+  return (
+    <div className="page">
+      <header className="page-head">
+        <div>
+          <h1>Overview</h1>
+          <p className="sub">Northwind Outdoor · sample data</p>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="range" role="group" aria-label="Date range">
+          {RANGES.map((r) => (
+            <button key={r.id} type="button" aria-pressed={range === r.id} onClick={() => setRange(r.id)}>{r.label.replace('Last ', '')}</button>
+          ))}
         </div>
-      </main>
+      </header>
+
+      <section className="kpis" aria-label={`Key figures, ${label}`}>
+        <div className="kpi"><p className="kpi-label">Revenue</p><p className="kpi-value">{money(c.revenue)}</p><Delta now={c.revenue} before={p.revenue} /></div>
+        <div className="kpi"><p className="kpi-label">Orders</p><p className="kpi-value">{num(c.orders)}</p><Delta now={c.orders} before={p.orders} /></div>
+        <div className="kpi"><p className="kpi-label">Average order value</p><p className="kpi-value">{money(c.aov, 2)}</p><Delta now={c.aov} before={p.aov} /></div>
+        <div className="kpi"><p className="kpi-label">Conversion rate</p><p className="kpi-value">{pct(c.conversion, 2)}</p><Delta now={c.conversion} before={p.conversion} /></div>
+      </section>
+
+      <section className="card span-2" aria-labelledby="rev-title">
+        <div className="card-head">
+          <div>
+            <h2 id="rev-title">Revenue</h2>
+            <p className="sub">{bucket > 1 ? 'Weekly totals' : 'Daily totals'}, {label}</p>
+          </div>
+          <ul className="legend" aria-label="Legend">
+            <li><span className="lkey" style={{ background: 'var(--series-1)' }} />This period</li>
+            <li><span className="lkey" style={{ background: 'var(--compare)' }} />Previous period</li>
+          </ul>
+        </div>
+        <RevenueChart data={series} bucketLabel={label} />
+        <button type="button" className="link-btn" aria-expanded={showTable} onClick={() => setShowTable((s) => !s)}>{showTable ? 'Hide' : 'Show'} data table</button>
+        {showTable && (
+          <div className="table-wrap small">
+            <table>
+              <thead><tr><th scope="col">{bucket > 1 ? 'Week of' : 'Date'}</th><th scope="col" className="num">This period</th><th scope="col" className="num">Previous period</th></tr></thead>
+              <tbody>{series.map((s) => <tr key={s.date}><td>{shortDate(s.date)}</td><td className="num">{money(s.revenue)}</td><td className="num">{money(s.previous)}</td></tr>)}</tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <div className="grid-2">
+        <section className="card" aria-labelledby="ch-title">
+          <div className="card-head"><div><h2 id="ch-title">Revenue by channel</h2><p className="sub">{label}</p></div></div>
+          <ChannelChart data={channels} />
+        </section>
+
+        <section className="card" aria-labelledby="tp-title">
+          <div className="card-head"><div><h2 id="tp-title">Top products</h2><p className="sub">Last 30 days</p></div></div>
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Product</th><th scope="col" className="num">Units</th><th scope="col" className="num">Revenue</th></tr></thead>
+              <tbody>
+                {TOP_PRODUCTS.slice(0, 5).map((t) => (
+                  <tr key={t.sku}><td><b>{t.name}</b><small className="muted block">{t.sku}</small></td><td className="num">{num(t.units)}</td><td className="num">{money(t.revenue)}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <section className="card" aria-labelledby="ro-title">
+        <div className="card-head">
+          <div><h2 id="ro-title">Recent orders</h2></div>
+          <Link href="/orders/" className="btn btn-ghost">View all orders</Link>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Order</th><th scope="col">Customer</th><th scope="col">Status</th><th scope="col" className="num">Total</th></tr></thead>
+            <tbody>
+              {ORDERS.slice(0, 6).map((o) => (
+                <tr key={o.id}><td className="mono">{o.id}</td><td>{o.customer}</td><td><Status status={o.status} /></td><td className="num">{money(o.total, 2)}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }

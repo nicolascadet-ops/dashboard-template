@@ -67,7 +67,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
         <nav id="side-nav" aria-label="Main" className="side-nav">
-          <p className="ws"><span className="ws-av" aria-hidden="true">NO</span><span><b>Northwind Outdoor</b><small>Demo workspace</small></span></p>
+          <p className="ws"><span className="ws-av" aria-hidden="true">NW</span><span><b>Northwind Outdoor</b><small>Demo workspace</small></span></p>
           <ul>
             {NAV.map((n) => {
               const active = n.href === '/' ? path === '/' : path.startsWith(n.href);
@@ -86,7 +86,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </nav>
       </aside>
-      <main id="main" className="main">{children}</main>
+      <main id="main" className="main">{children}<p className="credit-sm">Template by <a href="https://ncatelier.com">NC Atelier</a></p></main>
     </div>
   );
 }

@@ -10,11 +10,11 @@ const STATUSES: (OrderStatus | 'All')[] = ['All', 'Paid', 'Pending', 'Refunded',
 
 const COLUMNS: Column<Order>[] = [
   { key: 'id', label: 'Order', render: (o) => <span className="mono">{o.id}</span> },
-  { key: 'date', label: 'Date', render: (o) => shortDate(o.date) },
-  { key: 'customer', label: 'Customer', render: (o) => <><b>{o.customer}</b><small className="muted block">{o.email}</small></> },
-  { key: 'channel', label: 'Channel' },
+  { key: 'date', label: 'Date', hideSm: true, render: (o) => shortDate(o.date) },
+  { key: 'customer', label: 'Customer', render: (o) => <><b>{o.customer}</b><small className="muted block hide-sm">{o.email}</small></> },
+  { key: 'channel', label: 'Channel', hideSm: true },
   { key: 'status', label: 'Status', render: (o) => <Status status={o.status} /> },
-  { key: 'items', label: 'Items', num: true },
+  { key: 'items', label: 'Items', num: true, hideSm: true },
   { key: 'total', label: 'Total', num: true, render: (o) => money(o.total, 2) },
 ];
 
@@ -38,7 +38,7 @@ export default function OrdersPage() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><h1>Orders</h1><p className="sub">{ORDERS.length} orders · sample data</p></div>
+        <div><h1>Orders</h1><p className="sub">Latest {ORDERS.length} orders · sample data</p></div>
         <button type="button" className="btn btn-ghost" onClick={() => exportCsv(rows)}><Icon name="download" size={18} />Export CSV</button>
       </header>
       <div className="toolbar">

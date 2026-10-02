@@ -2,20 +2,21 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { RANGES, ORDERS, TOP_PRODUCTS, channelSplit, money, num, pct, rangeData, shortDate, type RangeId } from '@/lib/data';
+import { RANGES, ORDERS, LOW_STOCK, topProducts, channelSplit, money, num, pct, rangeData, shortDate, type RangeId } from '@/lib/data';
 import RevenueChart from '@/components/RevenueChart';
 import ChannelChart from '@/components/ChannelChart';
 import Status from '@/components/Status';
 import { Icon } from '@/components/Icon';
 
-function Delta({ now, before, invert = false }: { now: number; before: number; invert?: boolean }) {
+function Delta({ now, before, basis, invert = false }: { now: number; before: number; basis: string; invert?: boolean }) {
   const d = (now - before) / before;
   const good = invert ? d < 0 : d >= 0;
   return (
     <span className={`delta ${good ? 'up' : 'down'}`}>
       <Icon name={d >= 0 ? 'up' : 'down'} size={14} />
       {pct(Math.abs(d))}
-      <span className="sr-only">{d >= 0 ? 'increase' : 'decrease'} versus previous period</span>
+      <span className="sr-only">{d >= 0 ? 'increase' : 'decrease'}</span>
+      <span className="basis">vs {basis}</span>
     </span>
   );
 }
@@ -24,7 +25,10 @@ export default function Overview() {
   const [range, setRange] = useState<RangeId>('30d');
   const { current: c, previous: p, series, bucket } = rangeData(range);
   const channels = channelSplit(range);
-  const label = RANGES.find((r) => r.id === range)!.label.toLowerCase();
+  const rangeLabel = RANGES.find((r) => r.id === range)!.label;
+  const label = rangeLabel.toLowerCase();
+  const basis = `previous ${label.replace('last ', '')}`;
+  const products = topProducts(range);
   const [showTable, setShowTable] = useState(false);
 
   return (
@@ -42,10 +46,10 @@ export default function Overview() {
       </header>
 
       <section className="kpis" aria-label={`Key figures, ${label}`}>
-        <div className="kpi"><p className="kpi-label">Revenue</p><p className="kpi-value">{money(c.revenue)}</p><Delta now={c.revenue} before={p.revenue} /></div>
-        <div className="kpi"><p className="kpi-label">Orders</p><p className="kpi-value">{num(c.orders)}</p><Delta now={c.orders} before={p.orders} /></div>
-        <div className="kpi"><p className="kpi-label">Average order value</p><p className="kpi-value">{money(c.aov, 2)}</p><Delta now={c.aov} before={p.aov} /></div>
-        <div className="kpi"><p className="kpi-label">Conversion rate</p><p className="kpi-value">{pct(c.conversion, 2)}</p><Delta now={c.conversion} before={p.conversion} /></div>
+        <div className="kpi"><p className="kpi-label">Revenue</p><p className="kpi-value">{money(c.revenue)}</p><Delta now={c.revenue} before={p.revenue} basis={basis} /></div>
+        <div className="kpi"><p className="kpi-label">Orders</p><p className="kpi-value">{num(c.orders)}</p><Delta now={c.orders} before={p.orders} basis={basis} /></div>
+        <div className="kpi"><p className="kpi-label">Average order value</p><p className="kpi-value">{money(c.aov, 2)}</p><Delta now={c.aov} before={p.aov} basis={basis} /></div>
+        <div className="kpi"><p className="kpi-label">Conversion rate</p><p className="kpi-value">{pct(c.conversion, 2)}</p><Delta now={c.conversion} before={p.conversion} basis={basis} /></div>
       </section>
 
       <section className="card span-2" aria-labelledby="rev-title">
@@ -73,18 +77,18 @@ export default function Overview() {
 
       <div className="grid-2">
         <section className="card" aria-labelledby="ch-title">
-          <div className="card-head"><div><h2 id="ch-title">Revenue by channel</h2><p className="sub">{label}</p></div></div>
+          <div className="card-head"><div><h2 id="ch-title">Revenue by channel</h2><p className="sub">{rangeLabel}</p></div></div>
           <ChannelChart data={channels} />
         </section>
 
         <section className="card" aria-labelledby="tp-title">
-          <div className="card-head"><div><h2 id="tp-title">Top products</h2><p className="sub">Last 30 days</p></div></div>
+          <div className="card-head"><div><h2 id="tp-title">Top products</h2><p className="sub">{rangeLabel}</p></div></div>
           <div className="table-wrap">
             <table>
               <thead><tr><th scope="col">Product</th><th scope="col" className="num">Units</th><th scope="col" className="num">Revenue</th></tr></thead>
               <tbody>
-                {TOP_PRODUCTS.slice(0, 5).map((t) => (
-                  <tr key={t.sku}><td><b>{t.name}</b><small className="muted block">{t.sku}</small></td><td className="num">{num(t.units)}</td><td className="num">{money(t.revenue)}</td></tr>
+                {products.map((t) => (
+                  <tr key={t.sku}><td><b>{t.name}</b><small className="muted block">{t.sku}{t.stock < LOW_STOCK && <span className="low"> · <Icon name="alert" size={13} />Low stock: {t.stock} left</span>}</small></td><td className="num">{num(t.units)}</td><td className="num">{money(t.revenue)}</td></tr>
                 ))}
               </tbody>
             </table>

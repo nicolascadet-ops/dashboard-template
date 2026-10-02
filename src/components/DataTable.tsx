@@ -7,6 +7,7 @@ export type Column<T> = {
   key: keyof T & string;
   label: string;
   num?: boolean;
+  hideSm?: boolean; // hidden below 640px so the key columns fit on phones
   render?: (row: T) => React.ReactNode;
 };
 
@@ -50,7 +51,7 @@ export default function DataTable<T extends Record<string, unknown>>({ rows, col
               {columns.map((c) => {
                 const state = sort?.key === c.key ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none';
                 return (
-                  <th key={c.key} scope="col" className={c.num ? 'num' : undefined} aria-sort={state}>
+                  <th key={c.key} scope="col" className={[c.num && 'num', c.hideSm && 'hide-sm'].filter(Boolean).join(' ') || undefined} aria-sort={state}>
                     <button type="button" className="th-btn" onClick={() => toggle(c.key)}>
                       {c.label}
                       <Icon name={state === 'ascending' ? 'up' : state === 'descending' ? 'down' : 'sort'} size={14} />
@@ -63,7 +64,7 @@ export default function DataTable<T extends Record<string, unknown>>({ rows, col
           <tbody>
             {visible.map((r, i) => (
               <tr key={i}>
-                {columns.map((c) => <td key={c.key} className={c.num ? 'num' : undefined}>{c.render ? c.render(r) : String(r[c.key])}</td>)}
+                {columns.map((c) => <td key={c.key} className={[c.num && 'num', c.hideSm && 'hide-sm'].filter(Boolean).join(' ') || undefined}>{c.render ? c.render(r) : String(r[c.key])}</td>)}
               </tr>
             ))}
           </tbody>

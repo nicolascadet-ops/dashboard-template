@@ -7,9 +7,9 @@ import { Icon } from '@/components/Icon';
 
 type Customer = (typeof CUSTOMERS)[number];
 const COLUMNS: Column<Customer>[] = [
-  { key: 'name', label: 'Customer', render: (c) => <><b>{c.name}</b><small className="muted block">{c.email}</small></> },
-  { key: 'region', label: 'Region' },
-  { key: 'since', label: 'Customer since', render: (c) => new Date(c.since).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' }) },
+  { key: 'name', label: 'Customer', render: (c) => <><b>{c.name}</b><small className="muted block hide-sm">{c.email}</small></> },
+  { key: 'region', label: 'Region', hideSm: true },
+  { key: 'since', label: 'Customer since', hideSm: true, render: (c) => new Date(c.since).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' }) },
   { key: 'orders', label: 'Orders', num: true },
   { key: 'spent', label: 'Lifetime spend', num: true, render: (c) => money(c.spent) },
 ];
@@ -23,9 +23,9 @@ export default function CustomersPage() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><h1>Customers</h1><p className="sub">Sample data</p></div></header>
+      <header className="page-head"><div><h1>Customers</h1><p className="sub">Top {CUSTOMERS.length} customers by spend · sample data</p></div></header>
       <section className="kpis three" aria-label="Customer figures">
-        <div className="kpi"><p className="kpi-label">Customers</p><p className="kpi-value">{num(CUSTOMERS.length)}</p></div>
+        <div className="kpi"><p className="kpi-label">Customers shown</p><p className="kpi-value">{num(CUSTOMERS.length)}</p></div>
         <div className="kpi"><p className="kpi-label">Repeat customers</p><p className="kpi-value">{Math.round(repeat * 100)}%</p></div>
         <div className="kpi"><p className="kpi-label">Average lifetime spend</p><p className="kpi-value">{money(avg)}</p></div>
       </section>

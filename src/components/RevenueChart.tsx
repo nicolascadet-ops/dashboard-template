@@ -6,7 +6,16 @@ import { money, shortDate } from '@/lib/data';
 type Point = { date: string; revenue: number; previous: number };
 
 // One axis, two series: this period (blue) and the previous period (muted grey line) for comparison.
+// Even, round gridlines so every axis label is exact
+function niceTicks(max: number) {
+  const step = [1000, 2000, 2500, 5000, 10000, 20000, 25000, 50000, 100000].find((s) => max / s <= 5) ?? 200000;
+  const top = Math.ceil(max / step) * step;
+  return Array.from({ length: top / step + 1 }, (_, i) => i * step);
+}
+const k = (v: number) => (v >= 1000 ? `$${Number.isInteger(v / 1000) ? v / 1000 : (v / 1000).toFixed(1)}k` : `$${v}`);
+
 export default function RevenueChart({ data, bucketLabel }: { data: Point[]; bucketLabel: string }) {
+  const ticks = niceTicks(Math.max(...data.map((d) => Math.max(d.revenue, d.previous))));
   return (
     <div className="chart" role="img" aria-label={`Revenue ${bucketLabel}, this period compared with the previous period. Exact values are in the table below the chart.`}>
       <ResponsiveContainer width="100%" height={300}>
@@ -19,7 +28,7 @@ export default function RevenueChart({ data, bucketLabel }: { data: Point[]; buc
           </defs>
           <CartesianGrid vertical={false} stroke="var(--grid)" />
           <XAxis dataKey="date" tickFormatter={shortDate} tickLine={false} axisLine={{ stroke: 'var(--axis)' }} tick={{ fill: 'var(--muted)', fontSize: 12 }} minTickGap={32} />
-          <YAxis tickFormatter={(v) => (v >= 1000 ? `$${Math.round(v / 1000)}k` : `$${v}`)} tickLine={false} axisLine={false} tick={{ fill: 'var(--muted)', fontSize: 12 }} width={48} />
+          <YAxis ticks={ticks} domain={[0, ticks[ticks.length - 1]]} tickFormatter={k} tickLine={false} axisLine={false} tick={{ fill: 'var(--muted)', fontSize: 12 }} width={48} />
           <Tooltip content={<ChartTip />} cursor={{ stroke: 'var(--axis)', strokeWidth: 1 }} />
           <Line type="monotone" dataKey="previous" name="Previous period" stroke="var(--compare)" strokeWidth={2} dot={false} activeDot={{ r: 4, stroke: 'var(--surface)', strokeWidth: 2 }} isAnimationActive={false} />
           <Area type="monotone" dataKey="revenue" name="This period" stroke="var(--series-1)" strokeWidth={2} fill="url(#rev-fill)" activeDot={{ r: 5, stroke: 'var(--surface)', strokeWidth: 2 }} isAnimationActive={false} />

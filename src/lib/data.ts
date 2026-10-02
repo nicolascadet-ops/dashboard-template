@@ -64,12 +64,22 @@ export function channelSplit(id: RangeId) {
   return CHANNELS.map((c, i) => ({ channel: c, revenue: Math.round(total * shares[i]) }));
 }
 
-const PRODUCT_NAMES = ['Ridge 35L Pack', 'Alpine Shell Jacket', 'Trail Runner GTX', 'Merino Base Layer', 'Summit Down Vest', 'Basecamp Tent 2P', 'Headlamp Pro 400', 'Insulated Bottle 1L'];
-export const TOP_PRODUCTS = PRODUCT_NAMES.map((name, i) => {
-  const units = Math.round(900 - i * 85 + rand() * 60);
-  const price = [149, 289, 165, 79, 199, 389, 59, 39][i];
-  return { name, sku: `NW-${1040 + i * 7}`, units, revenue: units * price, stock: Math.round(20 + rand() * 300) };
-}).sort((a, b) => b.revenue - a.revenue);
+// Top products follow the selected range: each takes a fixed share of that period's revenue
+const PRODUCTS = [
+  { name: 'Trail Runner GTX', sku: 'NW-1054', price: 165, share: 0.13, stock: 212 },
+  { name: 'Merino Base Layer', sku: 'NW-1061', price: 79, share: 0.11, stock: 18 },
+  { name: 'Ridge 35L Pack', sku: 'NW-1040', price: 149, share: 0.09, stock: 140 },
+  { name: 'Insulated Bottle 1L', sku: 'NW-1089', price: 39, share: 0.08, stock: 23 },
+  { name: 'Headlamp Pro 400', sku: 'NW-1082', price: 59, share: 0.06, stock: 305 },
+];
+export const LOW_STOCK = 25;
+export function topProducts(id: RangeId) {
+  const total = rangeData(id).current.revenue;
+  return PRODUCTS.map((p) => {
+    const units = Math.round((total * p.share) / p.price);
+    return { ...p, units, revenue: units * p.price };
+  });
+}
 
 export type OrderStatus = 'Paid' | 'Pending' | 'Refunded' | 'Failed';
 export type Order = { id: string; customer: string; email: string; date: string; items: number; total: number; status: OrderStatus; channel: (typeof CHANNELS)[number] };
@@ -82,18 +92,22 @@ export const ORDERS: Order[] = Array.from({ length: 240 }, (_, i) => {
   const last = pick(LAST);
   const r = rand();
   const status: OrderStatus = r < 0.82 ? 'Paid' : r < 0.91 ? 'Pending' : r < 0.97 ? 'Refunded' : 'Failed';
-  const items = 1 + Math.floor(rand() * 4);
+  const items = 1 + Math.floor(rand() * 3);
   return {
     id: `#${48210 - i}`,
     customer: `${first} ${last}`,
     email: `${first.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')}.${last.toLowerCase()}@example.com`,
-    date: new Date(TODAY.getTime() - i * 0.37 * DAY - rand() * 3_600_000).toISOString(),
+    date: new Date(TODAY.getTime() - i * 0.0075 * DAY - rand() * 300_000).toISOString(),
     items,
-    total: Math.round((items * (40 + rand() * 140)) * 100) / 100,
+    total: Math.round(items * (24 + rand() * 26) * 100) / 100,
     status,
     channel: pick(CHANNELS),
   };
 });
+// Make sure the newest page shows every status
+ORDERS[0].status = 'Pending';
+ORDERS[3].status = 'Refunded';
+ORDERS[5].status = 'Failed';
 
 export const REGIONS = ['Ontario', 'British Columbia', 'Quebec', 'Alberta', 'California', 'New York', 'England', 'Scotland'] as const;
 export const CUSTOMERS = Array.from({ length: 60 }, (_, i) => {
@@ -105,7 +119,7 @@ export const CUSTOMERS = Array.from({ length: 60 }, (_, i) => {
     email: `${name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(' ', '.')}@example.com`,
     region: pick(REGIONS),
     orders,
-    spent: Math.round(orders * (70 + rand() * 90)),
+    spent: Math.round(orders * (55 + rand() * 40)),
     since: new Date(TODAY.getTime() - (30 + rand() * 900) * DAY).toISOString().slice(0, 10),
   };
 }).sort((a, b) => b.spent - a.spent);

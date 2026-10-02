@@ -162,7 +162,7 @@ Pulse refuses gradient KPI cards, neon dark-mode dashboards, dual-axis charts, d
 
 A warm, near-neutral grey ramp carrying a single blue accent and four semantic status pairs.
 
-All colours are CSS custom properties in `src/app/globals.css`. The light set lives on `:root`; the dark set is declared twice (inside `prefers-color-scheme: dark` for `:root:not([data-theme="light"])`, and on `:root[data-theme="dark"]`). **To retheme, edit both dark blocks identically**, or the toggle and the OS setting will disagree.
+All colours are CSS custom properties in `app/assets/css/main.css`. The light set lives on `:root`; the dark set is declared twice (inside `prefers-color-scheme: dark` for `:root:not([data-theme="light"])`, and on `:root[data-theme="dark"]`). **To retheme, edit both dark blocks identically**, or the toggle and the OS setting will disagree.
 
 ### Primary
 - **Series Blue** (`series-1`, dark `series-1-dark`): the current-period data series, the active nav icon, focus outlines, input focus rings, text selection, links styled as buttons, and the logo tile. It is a data colour first; chrome uses it sparingly.
@@ -189,7 +189,7 @@ All colours are CSS custom properties in `src/app/globals.css`. The light set li
 ### Named Rules
 **The One Series Rule.** A chart shows one coloured series (`series-1`). A comparison uses `compare` grey on the same axis. A bar chart of one measure uses one colour for every bar, with values labelled at the bar ends. If you need a second coloured series, add a `--series-2` token with light and dark values validated for contrast against `surface` and against `series-1`, never a hard-coded hex in the chart.
 
-**The Token-Only Rule.** Components and Recharts props read `var(--token)` (`stroke="var(--series-1)"`, `tick={{ fill: 'var(--muted)' }}`), so charts switch theme with the page. The only literal is white (#fff) on blue fills (buttons, logo tile, selection); any other literal colour in a component is a bug.
+**The Token-Only Rule.** Components and the SVG charts read `var(--token)` (`stroke="var(--series-1)"`, `.axis-label { fill: var(--muted) }`), so charts switch theme with the page. The only literal is white (#fff) on blue fills (buttons, logo tile, selection); any other literal colour in a component is a bug.
 
 ## Typography
 
@@ -233,7 +233,7 @@ Flat. Cards, tiles, the sidebar and table headers separate from the page by tone
 
 ## Shapes
 
-Soft rectangles throughout: 10px for cards, KPI tiles and the workspace block (`--radius`); 8px for buttons, inputs, nav items, tooltips and icon buttons; 6px for options inside a segmented control (whose container is 9px); full pill (99px) for status badges. Borders are always 1px `line`. Bars in the channel chart round only their outer end (4px). Icons are 20px line drawings on a 20-unit grid with a 1.6 stroke and round caps (`src/components/Icon.tsx`); add new icons to that map at the same stroke.
+Soft rectangles throughout: 10px for cards, KPI tiles and the workspace block (`--radius`); 8px for buttons, inputs, nav items, tooltips and icon buttons; 6px for options inside a segmented control (whose container is 9px); full pill (99px) for status badges. Borders are always 1px `line`. Bars in the channel chart round only their outer end (4px). Icons are 20px line drawings on a 20-unit grid with a 1.6 stroke and round caps (`app/utils/icons.ts`); add new icons to that map at the same stroke.
 
 ## Components
 
@@ -255,7 +255,7 @@ Soft rectangles throughout: 10px for cards, KPI tiles and the workspace block (`
 Label (13px, graphite), value (28px tabular), then a delta: arrow icon plus percentage in `good` or `critical`, a screen-reader "increase/decrease", and a muted "vs previous …" basis. Pass `invert` for metrics where down is good. Value-only tiles (no delta) are fine.
 
 ### Status badge
-`<Status status=… />` renders a 24px pill with a 14px icon and the label. **To add a status:** extend `OrderStatus` in `src/lib/data.ts`, then add one entry to the map in `src/components/Status.tsx` choosing one of the four classes (`good`, `warning`, `critical`, `neutral`) and an icon from `Icon.tsx`. Reuse the four semantic pairs; a new colour pair needs light and dark tokens and a contrast check in both themes.
+`<StatusBadge :status="…" />` renders a 24px pill with a 14px icon and the label. **To add a status:** extend `OrderStatus` in `app/utils/data.ts`, then add one entry to the map in `app/components/StatusBadge.vue` choosing one of the four classes (`good`, `warning`, `critical`, `neutral`) and an icon from `app/utils/icons.ts`. Reuse the four semantic pairs; a new colour pair needs light and dark tokens and a contrast check in both themes.
 
 ### Inputs / Fields
 - **Style:** 38px, surface fill, hairline border, 8px corners, max width 420px; label above in 600 13px.

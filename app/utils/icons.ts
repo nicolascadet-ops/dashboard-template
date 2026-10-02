@@ -1,5 +1,5 @@
 // A small set of 20px line icons, drawn once at the same 1.6 stroke.
-const PATHS = {
+export const PATHS = {
   chart: 'M3 17V9M8 17V4M13 17v-6M18 17V7M2 17.5h17',
   receipt: 'M5 2.5h10v15l-2.5-1.5L10 17.5 7.5 16 5 17.5zM7.5 7h5M7.5 10.5h5',
   users: 'M7.5 9a3 3 0 100-6 3 3 0 000 6zM2.5 17c0-3 2.2-5 5-5s5 2 5 5M13.5 3.2a3 3 0 010 5.6M15 12.3c1.6.6 2.5 2.4 2.5 4.7',
@@ -20,13 +20,4 @@ const PATHS = {
   left: 'M12.5 4.5L7 10l5.5 5.5',
   right: 'M7.5 4.5L13 10l-5.5 5.5',
 } as const;
-
 export type IconName = keyof typeof PATHS;
-
-export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 20 20" aria-hidden="true" className="icon">
-      <path d={PATHS[name]} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}

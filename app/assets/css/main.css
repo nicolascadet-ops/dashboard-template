@@ -140,8 +140,23 @@ a { color: inherit; }
 @media (max-width: 560px) { .kpis, .kpis.three { grid-template-columns: 1fr 1fr; } .kpi-value { font-size: 22px; } }
 
 /* Charts */
-.chart { width: 100%; min-width: 0; }
-.chart .recharts-surface:focus { outline: none; }
+.chart { position: relative; width: 100%; min-width: 0; }
+.chart svg { display: block; overflow: visible; }
+.axis-label { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.hit { cursor: crosshair; outline: none; }
+.hit:focus-visible { stroke: var(--focus); stroke-width: 2; }
+.chart-tip { position: absolute; pointer-events: none; min-width: 160px; z-index: 2; }
+
+/* Horizontal bar chart (HTML) */
+.bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.bar-row { position: relative; display: grid; grid-template-columns: 116px 1fr; align-items: center; gap: 10px; border-radius: 6px; outline: none; }
+.bar-row:focus-visible { box-shadow: 0 0 0 2px var(--focus); }
+.bar-label { text-align: right; font-size: 13px; color: var(--text-2); }
+.bar-track { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.bar { height: 26px; background: var(--series-1); border-radius: 0 4px 4px 0; transition: filter .15s; }
+.bar-row:hover .bar, .bar-row:focus-visible .bar { filter: brightness(1.12); }
+.bar-value { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bar-tip { position: absolute; left: 126px; top: -38px; z-index: 2; pointer-events: none; white-space: nowrap; }
 .legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--text-2); }
 .legend li { display: inline-flex; align-items: center; gap: 6px; }
 .lkey { width: 14px; height: 2px; border-radius: 2px; }

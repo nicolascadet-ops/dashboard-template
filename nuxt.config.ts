@@ -19,6 +19,6 @@ export default defineNuxtConfig({
       script: [{ innerHTML: themeScript, tagPosition: 'head' }],
     },
   },
-  nitro: { prerender: { crawlLinks: true, routes: ['/', '/orders/', '/customers/', '/settings/'] } },
+  nitro: { preset: 'static', prerender: { crawlLinks: true, routes: ['/', '/orders/', '/customers/', '/settings/'] } },
   router: { options: { strict: false } },
 })

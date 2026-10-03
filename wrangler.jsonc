@@ -1,0 +1,5 @@
+{
+  "name": "pulse-dashboard",
+  "compatibility_date": "2025-07-15",
+  "assets": { "directory": ".output/public", "not_found_handling": "404-page" }
+}
